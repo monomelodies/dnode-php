@@ -16,4 +16,20 @@ class ServerStub extends EventEmitter implements ServerInterface
     public function shutdown()
     {
     }
+
+    public function getAddress()
+    {
+    }
+
+    public function pause()
+    {
+    }
+
+    public function resume()
+    {
+    }
+
+    public function close()
+    {
+    }
 }
