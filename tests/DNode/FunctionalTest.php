@@ -1,8 +1,9 @@
 <?php
 namespace DNode;
 use React\EventLoop\StreamSelectLoop;
+use PHPUnit\Framework\TestCase;
 
-class FunctionalTest extends \PHPUnit_Framework_TestCase
+class FunctionalTest extends TestCase
 {
     /**
      * @covers DNode\DNode::__construct
