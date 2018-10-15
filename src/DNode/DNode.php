@@ -67,7 +67,7 @@ class DNode extends EventEmitter
 
         $that = $this;
 
-        $server = new Server($this->loop);
+        $server = new Server("{$params['host']}:{$params['port']}", $this->loop);
         $server->on('connection', function ($conn) use ($that, $params) {
             $that->handleConnection($conn, $params);
         });
