@@ -1,13 +1,14 @@
 <?php
 namespace DNode;
 
-use React\Stream\{ ReadableResourceStream, WriteableResourceStream, CompositeStream };
+use React\Stream\{ ReadableResourceStream, WritableResourceStream, CompositeStream };
+use React\Socket\ConnectionInterface;
 
 class Stream
 {
     private $dnode;
 
-    public function __construct(DNode $dnode, Session $client, $onReady)
+    public function __construct(DNode $dnode, ConnectionInterface $conn, Session $client, callable $onReady = null)
     {
         $this->dnode = $dnode;
 
@@ -15,19 +16,19 @@ class Stream
             call_user_func($middleware, array($client->instance, $client->remote, $client));
         }
 
-        if ($onReady) {
-            $client->on('ready', function () use ($client, $onReady) {
-                call_user_func($onReady, $client->remote, $client);
-            });
-        }
-
-        $input = new ReadableResourceStream($client, $this->dnode->getLoop());
-        $output = new WritableResourceStream($client, $this->dnode->getLoop());
+        $input = new ReadableResourceStream($conn->stream, $this->dnode->getLoop());
+        $output = new WritableResourceStream($conn->stream, $this->dnode->getLoop());
         $client->on('request', function (array $request) use ($output) {
             $output->emit('data', array(json_encode($request)."\n"));
         });
 
-        $this->stream = new CompositeStream($output, $input);
+        $this->stream = new CompositeStream($input, $output);
+
+        if ($onReady) {
+//            $client->on('connection', function () use ($client, $onReady) {
+                call_user_func($onReady, $client->remote, $client);
+//            });
+        }
     }
 
     public function __call($method, array $args)
