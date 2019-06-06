@@ -1,6 +1,7 @@
 <?php
 namespace DNode;
-use React\Stream\CompositeStream;
+
+use React\Stream\{ ReadableResourceStream, WriteableResourceStream, CompositeStream };
 
 class Stream
 {
@@ -20,8 +21,11 @@ class Stream
             });
         }
 
-        $input = new InputStream($client);
-        $output = new OutputStream($client);
+        $input = new ReadableResourceStream($client, $this->dnode->getLoop());
+        $output = new WritableResourceStream($client, $this->dnode->getLoop());
+        $client->on('request', function (array $request) use ($output) {
+            $output->emit('data', array(json_encode($request)."\n"));
+        });
 
         $this->stream = new CompositeStream($output, $input);
     }
