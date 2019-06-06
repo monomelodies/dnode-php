@@ -1,5 +1,7 @@
 <?php
+
 namespace DNode;
+
 use Evenement\EventEmitter;
 use React\EventLoop\LoopInterface;
 use React\Socket\Server;
@@ -13,7 +15,7 @@ class DNode extends EventEmitter
     private $loop;
     private $protocol;
 
-    public function __construct(LoopInterface $loop, $wrapper = null)
+    public function __construct(LoopInterface $loop, object $wrapper = null)
     {
         $this->loop = $loop;
 
@@ -21,15 +23,15 @@ class DNode extends EventEmitter
         $this->protocol = new Protocol($wrapper);
     }
 
-    public function using($middleware)
+    public function using($middleware) : DNode
     {
         $this->stack[] = $middleware;
         return $this;
     }
 
-    public function connect()
+    public function connect(...$args) : void
     {
-        $params = $this->protocol->parseArgs(func_get_args());
+        $params = $this->protocol->parseArgs($args);
         if (!isset($params['host'])) {
             $params['host'] = '127.0.0.1';
         }
@@ -54,9 +56,9 @@ class DNode extends EventEmitter
         $this->handleConnection($conn, $params);
     }
 
-    public function listen()
+    public function listen(...$args) : Server
     {
-        $params = $this->protocol->parseArgs(func_get_args());
+        $params = $this->protocol->parseArgs($args);
         if (!isset($params['host'])) {
             $params['host'] = '127.0.0.1';
         }
@@ -65,38 +67,41 @@ class DNode extends EventEmitter
             throw new \Exception("For now we only support TCP connections to a defined port");
         }
 
-        $that = $this;
-
-        $server = new Server("{$params['host']}:{$params['port']}", $this->loop);
-        $server->on('connection', function ($conn) use ($that, $params) {
-            $that->handleConnection($conn, $params);
+        $this->server = new Server("{$params['host']}:{$params['port']}", $this->loop);
+        $this->server->on('connection', function ($conn) use ($params) {
+            $this->handleConnection($conn, $params);
         });
-        $server->listen($params['port'], $params['host']);
 
-        return $server;
+        return $this->server;
     }
 
-    public function handleConnection(ConnectionInterface $conn, $params)
+    public function handleConnection(ConnectionInterface $conn, array $params) : void
     {
         $client = $this->protocol->create();
 
         $onReady = isset($params['block']) ? $params['block'] : null;
-        $stream = new Stream($this, $client, $onReady);
+        $stream = new Stream($this, $conn, $client, $onReady);
 
-        $conn->pipe($stream)->pipe($conn);
+        $conn->pipe($stream->stream)->pipe($conn);
 
+echo 'starting!'; die();
         $client->start();
     }
 
-    public function end()
+    public function end() : void
     {
         $this->protocol->end();
         $this->emit('end');
     }
 
-    public function close()
+    public function close() : void
     {
-        // FIXME: $this->server does not exist
         $this->server->close();
     }
+
+    public function getLoop() : LoopInterface
+    {
+        return $this->loop;
+    }
 }
+
