@@ -1,5 +1,7 @@
 <?php
+
 namespace DNode;
+
 use Evenement\EventEmitter;
 
 class Session extends EventEmitter
