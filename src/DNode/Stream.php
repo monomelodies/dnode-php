@@ -2,7 +2,7 @@
 namespace DNode;
 use React\Stream\CompositeStream;
 
-class Stream extends CompositeStream
+class Stream
 {
     private $dnode;
 
@@ -23,6 +23,11 @@ class Stream extends CompositeStream
         $input = new InputStream($client);
         $output = new OutputStream($client);
 
-        parent::__construct($output, $input);
+        $this->stream = new CompositeStream($output, $input);
+    }
+
+    public function __call($method, array $args)
+    {
+        return call_user_func_array([$this->stream, $method], $args);
     }
 }
