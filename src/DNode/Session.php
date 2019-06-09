@@ -158,7 +158,7 @@ class Session extends EventEmitter
         return [
             'arguments' => $obj,
             'callbacks' => $paths,
-            'links' => $links.
+            'links' => $links,
         ];
     }
 
