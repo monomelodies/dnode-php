@@ -25,9 +25,9 @@ class Stream
         $this->stream = new CompositeStream($input, $output);
 
         if ($onReady) {
-//            $client->on('connection', function () use ($client, $onReady) {
+            $client->on('connection', function () use ($client, $onReady) {
                 call_user_func($onReady, $client->remote, $client);
-//            });
+            });
         }
     }
 
