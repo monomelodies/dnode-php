@@ -1,7 +1,7 @@
 <?php
 namespace DNode;
 
-use React\Stream\{ ReadableResourceStream, WritableResourceStream, CompositeStream };
+use React\Stream\{ WritableResourceStream, CompositeStream };
 use React\Socket\ConnectionInterface;
 
 class Stream
@@ -13,13 +13,13 @@ class Stream
         $this->dnode = $dnode;
 
         foreach ($this->dnode->stack as $middleware) {
-            call_user_func($middleware, array($client->instance, $client->remote, $client));
+            call_user_func($middleware, [$client->instance, $client->remote, $client]);
         }
 
-        $input = new ReadableResourceStream($conn->stream, $this->dnode->getLoop());
+        $input = new InputStream($conn->stream, $this->dnode->getLoop());
         $output = new WritableResourceStream($conn->stream, $this->dnode->getLoop());
-        $client->on('request', function (array $request) use ($output) {
-            $output->emit('data', array(json_encode($request)."\n"));
+        $client->on('request', function (array $request) use ($output) : void {
+            $output->emit('data', [json_encode($request)."\n"]);
         });
 
         $this->stream = new CompositeStream($input, $output);
