@@ -84,7 +84,6 @@ class DNode extends EventEmitter
 
         $conn->pipe($stream->stream)->pipe($conn);
 
-echo 'starting!'; die();
         $client->start();
     }
 
