@@ -120,7 +120,7 @@ class Session extends EventEmitter
         $this->emit('ready');
     }
 
-    private function scrub(object $obj) : array
+    private function scrub(array $obj) : array
     {
         $paths = [];
         $links = [];
