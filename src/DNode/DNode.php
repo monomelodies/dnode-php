@@ -10,7 +10,7 @@ use React\Socket\ConnectionInterface;
 
 class DNode extends EventEmitter
 {
-    public $stack = array();
+    public $stack = [];
 
     private $loop;
     private $protocol;
@@ -43,7 +43,7 @@ class DNode extends EventEmitter
         $client = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
         if (!$client) {
             $e = new \RuntimeException("No connection to DNode server in tcp://{$params['host']}:{$params['port']}");
-            $this->emit('error', array($e));
+            $this->emit('error', [$e]);
 
             if (!count($this->listeners('error'))) {
                 trigger_error((string) $e, E_USER_ERROR);
