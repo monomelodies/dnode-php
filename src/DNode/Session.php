@@ -97,7 +97,8 @@ class Session extends EventEmitter
                 call_user_func_array([$this, $req->method], $args);
                 return;
             }
-            return $this->emit('error', ["Request for non-enumerable method: {$req->method}"]);
+            $this->emit('error', ["Request for non-enumerable method: {$req->method}"]);
+            return;
         }
         if (is_numeric($req->method)) {
             call_user_func_array($this->callbacks[$req->method], $args);
