@@ -2,6 +2,7 @@
 
 use Gentry\Gentry\Wrapper;
 
+/** Testsuite for sessions */
 return function () : Generator {
     $dog = new Monomelodies\DNode\Dog;
     $session = Wrapper::createObject(Monomelodies\DNode\Session::class, 0, $dog);
