@@ -5,8 +5,8 @@ namespace Monomelodies\DNode;
 use Evenement\EventEmitter;
 use React\EventLoop\LoopInterface;
 use React\Socket\Server;
-use React\Socket\Connection;
-use React\Socket\ConnectionInterface;
+use React\Socket\{ Connection, ConnectionInterface, Connector };
+use React\Promise\Promise;
 use stdClass;
 use DomainException;
 use RuntimeException;
@@ -31,23 +31,40 @@ class DNode extends EventEmitter
         return $this;
     }
 
-    public function connect(string $address, callable $callback = null) : void
+    public function connect(string $address, callable $callback = null) : Promise
     {
+        $connector = new Connector($this->loop);
+        return $connector
+            ->connect($address)
+            ->then(function (ConnectionInterface $connection) : Protocol {
+                $protocol = clone $this->protocol;
+                $protocol->setConnection($connection);
+                return $protocol;
+            })
+            ->otherwise(function ($reason) use ($address) : void {
+                var_dump($reason->getMessage());
+                var_dump(get_class($reason));
+                $e = new RuntimeException("No connection to DNode server in $address");
+                $this->emit('error', [$e]);
+                if (!count($this->listeners('error'))) {
+                    trigger_error((string) $e, E_USER_ERROR);
+                }
+            });
+        /*
         $client = @stream_socket_client($address);
         if (!$client) {
-            $e = new RuntimeException("No connection to DNode server in $address");
-            $this->emit('error', [$e]);
-            if (!count($this->listeners('error'))) {
-                trigger_error((string) $e, E_USER_ERROR);
-            }
             return;
         }
+        */
     }
 
     public function listen(string $address, callable $callback = null) : Server
     {
         $this->server = new Server($address, $this->loop);
-        $this->server->on('connection', function ($connection) {
+        $this->server->on('connection', function (ConnectionInterface $connection) : void {
+            $connection->on('request', function ($req) {
+                var_dump($req);
+            });
             $connection->on('data', function ($data) use ($connection) {
                 var_dump($data);
             });
