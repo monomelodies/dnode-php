@@ -30,7 +30,8 @@ return function () : Generator {
     };
 
     /** @test */
-    yield function () use ($proxy) {
+    yield function () {
+        $proxy = Wrapper::createObject(Monomelodies\DNode\RemoteProxy::class);
         $foo = function () {};
         $bar = function () {};
 
