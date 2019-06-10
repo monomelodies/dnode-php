@@ -2,39 +2,30 @@
 
 use Gentry\Gentry\Wrapper;
 
+/** Tests for DNode protocol */
 return function () : Generator {
     $protocol = Wrapper::createObject(Monomelodies\DNode\Protocol::class, new Monomelodies\DNode\Dog);
 
-    /**
-     * @test
-     * @covers DNode\Protocol::__construct
-     * @covers DNode\Protocol::create
-     */
+    /** When "creating" a protocol, we get a session */
     yield function () use ($protocol) {
         $session = $protocol->create();
         assert($session instanceof Monomelodies\DNode\Session);
     };
 
-    /**
-     * @test
-     * @covers DNode\Protocol::destroy
-     */
+    /** We can destroy a session TODO: actually assert something... */
     yield function () use ($protocol) {
         $session = $protocol->create();
         $protocol->destroy($session->id);
     };
 
-    /**
-     * @test
-     * @covers DNode\Protocol::end
-     */
+    /** When creating multiple sessions they can all be ended seperately */
     yield function () use ($protocol) {
         $sessions = [
             $protocol->create(),
             $protocol->create(),
         ];
 
-    $called = 0;
+        $called = 0;
         foreach ($sessions as $session) {
             $session->on('end', function () use (&$called) {
                 $called++;
@@ -45,11 +36,7 @@ return function () : Generator {
         assert($called === 2);
     };
 
-    /**
-     * @test
-     * @covers DNode\Protocol::parseArgs
-     * @dataProvider provideParseArgs
-     */
+    /** Parse arguments... but this can prolly go */
     yield function () use ($protocol) {
         //assert($expected === $protocol->parseArgs($args));
     };
