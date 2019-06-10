@@ -3,6 +3,7 @@
 use React\EventLoop\StreamSelectLoop;
 use Gentry\Gentry\Wrapper;
 
+/** Functionally test complete server/client */
 return function () : Generator {
     /**
      * @covers DNode\DNode::__construct
@@ -10,6 +11,7 @@ return function () : Generator {
      * @covers DNode\DNode::listen
      * @test
      */
+    /** Using a server and a client, we can respond to a request */
     yield function () {
         $captured = null;
 
