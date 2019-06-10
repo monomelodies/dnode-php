@@ -2,15 +2,16 @@
 
 use Gentry\Gentry\Wrapper;
 
+/** Tests for the remote proxy */
 return function () : Generator {
     $proxy = Wrapper::createObject(Monomelodies\DNode\RemoteProxy::class);
 
-    /** @test */
+    /** Initially, we have no methods */
     yield function () use ($proxy) {
         assert($proxy->getMethods() === []);
     };
 
-    /** @test */
+    /** We can define a single method */
     yield function () use ($proxy) {
         $foo = function () {};
         $proxy->setMethod('foo', $foo);
@@ -18,7 +19,7 @@ return function () : Generator {
         assert($proxy->getMethods() === ['foo' => $foo]);
     };
 
-    /** @test */
+    /** We can define multiple methods */
     yield function () use ($proxy) {
         $foo = function () {};
         $bar = function () {};
@@ -29,7 +30,7 @@ return function () : Generator {
         assert(['foo' => $foo, 'bar' => $bar] === $proxy->getMethods());
     };
 
-    /** @test */
+    /** Defining a method with an existing name overwrites it */
     yield function () {
         $proxy = Wrapper::createObject(Monomelodies\DNode\RemoteProxy::class);
         $foo = function () {};
@@ -41,7 +42,7 @@ return function () : Generator {
         assert(['foo' => $bar] === $proxy->getMethods());
     };
 
-    /** @test */
+    /** We can call defined methods */
     yield function () use ($proxy) {
         $foo = function ($arg) use (&$fooCalled) {
             $fooCalled = $arg;
@@ -60,11 +61,7 @@ return function () : Generator {
         assert($barCalled === 'b');
     };
 
-    /**
-     * @test
-     * @expectedException BadMethodCallException
-     * @expectedExceptionMessage Method baz not available
-     */
+    /** Calling a non-existing method raises a BadMethodCallException */
     yield function () use ($proxy) {
         $e = null;
         try {
