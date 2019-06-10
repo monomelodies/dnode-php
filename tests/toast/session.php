@@ -6,7 +6,7 @@ return function () : Generator {
     $dog = new Monomelodies\DNode\Dog;
     $session = Wrapper::createObject(Monomelodies\DNode\Session::class, 0, $dog);
 
-    /** @test */
+    /** Starting a session issues the 'methods' request */
     yield function () use ($session, $dog) {
 
         $expected = [
@@ -26,10 +26,10 @@ return function () : Generator {
         assert($actual === $expected);
     };
 
-    /** @test */
+    /** Ending a session calls the callback */
     yield function () use ($session) {
         $called = false;
-        $session->on('end', function ($c) use (&$called) {
+        $session->on('end', function () use (&$called) {
             $called = true;
         });
         $session->end();
