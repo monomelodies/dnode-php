@@ -2,14 +2,18 @@
 
 namespace Monomelodies\DNode;
 
-use React\Socket\ServerInterface;
+use React\Socket\{ ServerInterface, ConnectionInterface };
 
 class Protocol
 {
+    /** @var object */
     private $wrapper;
+    /** @var array */
     private $sessions = [];
+    /** @var React\Socket\ConnectionInterface */
+    private $connection;
 
-    public function __construct($wrapper)
+    public function __construct(object $wrapper)
     {
         $this->wrapper = $wrapper;
     }
@@ -42,7 +46,8 @@ class Protocol
         }
     }
 
-    public function parseArgs($args) {
+    public function parseArgs($args)
+    {
         $params = [];
 
         foreach ($args as $arg) {
@@ -85,5 +90,15 @@ class Protocol
         }
 
         return $params;
+    }
+
+    public function setConnection(ConnectionInterface $connection)
+    {
+        $this->connection = $connection;
+    }
+
+    public function getConnection() : ConnectionInterface
+    {
+        return $this->connection;
     }
 }
