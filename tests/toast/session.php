@@ -9,15 +9,15 @@ return function () : Generator {
     /** @test */
     yield function () use ($session, $dog) {
 
-        $expected = array(
+        $expected = [
             'method'    => 'methods',
-            'arguments' => array($dog),
-            'callbacks' => array(
-                array(0, 'bark'),
-                array(0, 'meow'),
-            ),
-            'links'     => array(),
-        );
+            'arguments' => [$dog],
+            'callbacks' => [
+                [0, 'bark'],
+                [0, 'meow'],
+            ],
+            'links'     => [],
+        ];
         $actual = null;
         $session->on('request', function ($arg) use (&$actual) {
             $actual = $arg;
