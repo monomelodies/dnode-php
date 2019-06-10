@@ -1,0 +1,36 @@
+#!/usr/bin/php
+<?php
+
+namespace Monomelodies\DNode;
+
+use React\Socket\{ Server, ConnectionInterface };
+use React\EventLoop\StreamSelectLoop;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+$captured = null;
+
+$loop = new StreamSelectLoop;
+$server = new DNode($loop, new Transformer);
+$socket = $server->listen('tcp://127.0.0.1:5004');
+
+$client = new DNode($loop);
+$client->connect('tcp://127.0.0.1:5004')->then(function (Remote $remote) use ($socket) {
+    echo "get remote, wtf\n";
+    try {
+    $socket->close();
+    } catch (\Throwable $e) {
+        var_dump($e->getMessage());
+    }
+    die();
+    var_dump($remote->getMethods());
+    $remote->transform('fou', function ($transformed) use ($remote, &$captured, $socket) {
+        $captured = $transformed;
+        var_dump($transformed);
+        $remote->getConnection()->end();
+        $socket->close();
+    });
+});
+$loop->run();
+
+

@@ -1,0 +1,47 @@
+#!/usr/bin/php
+<?php
+
+namespace Monomelodies\DNode;
+
+use React\EventLoop\Factory;
+use React\Socket\{ Server, ConnectionInterface };
+
+require dirname(__DIR__).'/vendor/autoload.php';
+/*
+use React\EventLoop\StreamSelectLoop;
+
+require dirname(__DIR__).'/tests/DNode/Transformer.php';
+
+$captured = null;
+
+$loop = new StreamSelectLoop();
+$server = new DNode($loop, new Transformer());
+$socket = $server->listen(5004);
+
+$client = new DNode($loop);
+$client->connect(5004, function ($remote, $conn) use (&$captured, $socket) {
+    $remote->transform('fou', function ($transformed) use ($conn, &$captured, $socket) {
+        $captured = $transformed;
+        $conn->end();
+        $socket->shutdown();
+    });
+});
+$loop->run();
+*/
+$loop = Factory::create();
+$socket = new Server('127.0.0.1:5004', $loop);
+
+$socket->on('connection', function (ConnectionInterface $connection) {
+    $connection->write("Hello " . $connection->getRemoteAddress() . "!\n");
+    $connection->write("Welcome to this amazing server!\n");
+    $connection->write("Here's a tip: don't say anything.\n");
+    
+    $connection->on('data', function ($data) use ($connection) {
+        var_dump($data);
+        $connection->close();
+    });
+});
+
+$loop->run();
+
+
