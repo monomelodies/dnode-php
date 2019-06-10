@@ -31,7 +31,7 @@ class Session extends EventEmitter
     {
         $this->id = $id;
         $this->wrapper = $wrapper;
-        $this->remote = new RemoteProxy();
+        $this->remote = new RemoteProxy;
         $this->wrapper->remote =& $this->remote;
     }
 
