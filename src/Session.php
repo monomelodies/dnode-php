@@ -3,6 +3,7 @@
 namespace Monomelodies\DNode;
 
 use Evenement\EventEmitter;
+use stdClass;
 
 class Session extends EventEmitter
 {
@@ -108,7 +109,7 @@ class Session extends EventEmitter
     private function handleMethods($methods) : void
     {
         if (!is_object($methods)) {
-            $methods = new \StdClass();
+            $methods = new stdClass;
         }
 
         foreach ($methods as $key => $value) {
