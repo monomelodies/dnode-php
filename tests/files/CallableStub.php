@@ -1,5 +1,6 @@
 <?php
-namespace DNode;
+
+namespace Monomelodies\DNode;
 
 class CallableStub
 {
@@ -7,3 +8,4 @@ class CallableStub
     {
     }
 }
+

@@ -1,5 +1,7 @@
 <?php
-namespace DNode;
+
+namespace Monomelodies\DNode;
+
 use Evenement\EventEmitter;
 use React\Socket\ServerInterface;
 

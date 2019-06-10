@@ -1,5 +1,6 @@
 <?php
-namespace DNode;
+
+namespace Monomelodies\DNode;
 
 class Dog
 {
@@ -19,3 +20,4 @@ class Dog
     {
     }
 }
+
