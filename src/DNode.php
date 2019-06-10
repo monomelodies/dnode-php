@@ -7,6 +7,9 @@ use React\EventLoop\LoopInterface;
 use React\Socket\Server;
 use React\Socket\Connection;
 use React\Socket\ConnectionInterface;
+use stdClass;
+use DomainException;
+use RuntimeException;
 
 class DNode extends EventEmitter
 {
@@ -18,8 +21,7 @@ class DNode extends EventEmitter
     public function __construct(LoopInterface $loop, object $wrapper = null)
     {
         $this->loop = $loop;
-
-        $wrapper = $wrapper ?: new \StdClass();
+        $wrapper = $wrapper ?: new stdClass;
         $this->protocol = new Protocol($wrapper);
     }
 
@@ -29,49 +31,27 @@ class DNode extends EventEmitter
         return $this;
     }
 
-    public function connect(...$args) : void
+    public function connect(string $address, callable $callback = null) : void
     {
-        $params = $this->protocol->parseArgs($args);
-        if (!isset($params['host'])) {
-            $params['host'] = '127.0.0.1';
-        }
-
-        if (!isset($params['port'])) {
-            throw new \Exception("For now we only support TCP connections to a defined port");
-        }
-
-        $client = @stream_socket_client("tcp://{$params['host']}:{$params['port']}");
+        $client = @stream_socket_client($address);
         if (!$client) {
-            $e = new \RuntimeException("No connection to DNode server in tcp://{$params['host']}:{$params['port']}");
+            $e = new RuntimeException("No connection to DNode server in $address");
             $this->emit('error', [$e]);
-
             if (!count($this->listeners('error'))) {
                 trigger_error((string) $e, E_USER_ERROR);
             }
-
             return;
         }
-
-        $conn = new Connection($client, $this->loop);
-        $this->handleConnection($conn, $params);
     }
 
-    public function listen(...$args) : Server
+    public function listen(string $address, callable $callback = null) : Server
     {
-        $params = $this->protocol->parseArgs($args);
-        if (!isset($params['host'])) {
-            $params['host'] = '127.0.0.1';
-        }
-
-        if (!isset($params['port'])) {
-            throw new \Exception("For now we only support TCP connections to a defined port");
-        }
-
-        $this->server = new Server("{$params['host']}:{$params['port']}", $this->loop);
-        $this->server->on('connection', function ($conn) use ($params) {
-            $this->handleConnection($conn, $params);
+        $this->server = new Server($address, $this->loop);
+        $this->server->on('connection', function ($connection) {
+            $connection->on('data', function ($data) use ($connection) {
+                var_dump($data);
+            });
         });
-
         return $this->server;
     }
 
@@ -79,10 +59,11 @@ class DNode extends EventEmitter
     {
         $client = $this->protocol->create();
 
-        $onReady = isset($params['block']) ? $params['block'] : null;
+        $onReady = $params['block'] ?? null;
         $stream = new Stream($this, $conn, $client, $onReady);
 
         $conn->pipe($stream->stream)->pipe($conn);
+        $conn->resume();
 
         $client->start();
     }
