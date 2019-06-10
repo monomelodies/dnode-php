@@ -7,7 +7,7 @@ use React\Socket\ServerInterface;
 class Protocol
 {
     private $wrapper;
-    private $sessions = array();
+    private $sessions = [];
 
     public function __construct($wrapper)
     {
@@ -21,8 +21,8 @@ class Protocol
         $session = new Session($id, $this->wrapper);
 
         $that = $this;
-        $session->on('end', function () use ($that, $id) {
-            return $that->destroy($id);
+        $session->on('end', function () use ($id) {
+            return $this->destroy($id);
         });
 
         $this->sessions[$id] = $session;
@@ -43,7 +43,7 @@ class Protocol
     }
 
     public function parseArgs($args) {
-        $params = array();
+        $params = [];
 
         foreach ($args as $arg) {
             if (is_string($arg)) {
