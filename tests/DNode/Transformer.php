@@ -1,5 +1,6 @@
 <?php
-namespace DNode;
+
+namespace Monomelodies\DNode;
 
 class Transformer
 {
