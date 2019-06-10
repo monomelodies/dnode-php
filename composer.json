@@ -24,12 +24,18 @@
         "php": ">=7.3",
         "react/socket": "^1.2.1"
     },
+    "require-dev": {
+        "toast/unit": "^1.3",
+        "gentry/gentry": "^0.13.5"
+    },
     "autoload": {
         "psr-4": {
             "Monomelodies\\DNode\\": "src/"
         }
     },
-    "require-dev": {
-        "phpunit/phpunit": "^7.4"
+    "autoload-dev": {
+        "psr-4": {
+            "Monomelodies\\DNode\\": "tests/files/"
+        }
     }
 }
