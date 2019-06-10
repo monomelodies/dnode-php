@@ -18,11 +18,12 @@ return function () : Generator {
             ),
             'links'     => array(),
         );
-        $session->on('request', function ($arg) use (&$expected) {
-            $expected = $arg;
+        $actual = null;
+        $session->on('request', function ($arg) use (&$actual) {
+            $actual = $arg;
         });
         $session->start();
-        assert($arg === $expected);
+        assert($actual === $expected);
     };
 
     /** @test */
