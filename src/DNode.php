@@ -36,10 +36,8 @@ class DNode extends EventEmitter
         $connector = new Connector($this->loop);
         return $connector
             ->connect($address)
-            ->then(function (ConnectionInterface $connection) : Protocol {
-                $protocol = clone $this->protocol;
-                $protocol->setConnection($connection);
-                return $protocol;
+            ->then(function (ConnectionInterface $connection) : Remote {
+                return new Remote($this->protocol, $connection);
             })
             ->otherwise(function ($reason) use ($address) : void {
                 var_dump($reason->getMessage());
