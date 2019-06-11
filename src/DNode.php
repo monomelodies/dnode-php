@@ -13,19 +13,20 @@ use RuntimeException;
 
 class DNode extends EventEmitter
 {
+    /** @var array */
     public $stack = [];
-
+    /** @var React\EventLoop\LoopInterface */
     private $loop;
+    /** @var Monomelodies\DNode\Protocol */
     private $protocol;
 
     public function __construct(LoopInterface $loop, object $wrapper = null)
     {
         $this->loop = $loop;
-        $wrapper = $wrapper ?: new stdClass;
-        $this->protocol = new Protocol($wrapper);
+        $this->protocol = new Protocol($wrapper ?? new stdClass);
     }
 
-    public function using($middleware) : DNode
+    public function using(callable $middleware) : DNode
     {
         $this->stack[] = $middleware;
         return $this;
@@ -92,11 +93,6 @@ class DNode extends EventEmitter
     public function close() : void
     {
         $this->server->close();
-    }
-
-    public function getLoop() : LoopInterface
-    {
-        return $this->loop;
     }
 }
 
