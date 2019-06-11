@@ -22,8 +22,8 @@ $client->connect('tcp://127.0.0.1:5004')->then(function (Remote $remote) use ($s
     } catch (\Throwable $e) {
         var_dump($e->getMessage());
     }
-    die();
     var_dump($remote->getMethods());
+    die();
     $remote->transform('fou', function ($transformed) use ($remote, &$captured, $socket) {
         $captured = $transformed;
         var_dump($transformed);
