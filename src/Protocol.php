@@ -91,14 +91,5 @@ class Protocol
 
         return $params;
     }
-
-    public function setConnection(ConnectionInterface $connection)
-    {
-        $this->connection = $connection;
-    }
-
-    public function getConnection() : ConnectionInterface
-    {
-        return $this->connection;
-    }
 }
+
