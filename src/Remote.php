@@ -14,20 +14,25 @@ class Remote
     /** @var array */
     private $methods = [];
 
-    public function __construct(object $wrapper, ConnectionInterface $connection)
+    public function __construct(Protocol $protocol, ConnectionInterface $connection)
     {
-        $this->wrapper = $wrapper;
+        $this->protocol = $protocol;
         $this->connection = $connection;
     }
 
-    public function getMethods()
+    public function getMethods() : array
     {
-      return $this->methods;
+        return $this->methods;
     }
 
-    public function setMethod($method, $closure)
+    public function setMethod(string $method, callable $closure) : void
     {
         $this->methods[$method] = $closure;
+    }
+
+    public function close() : void
+    {
+        $this->connection->close();
     }
 
     public function __call($method, $args)
