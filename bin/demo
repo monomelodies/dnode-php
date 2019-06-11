@@ -16,13 +16,8 @@ $socket = $server->listen('tcp://127.0.0.1:5004');
 
 $client = new DNode($loop);
 $client->connect('tcp://127.0.0.1:5004')->then(function (Remote $remote) use ($socket) {
-    echo "get remote, wtf\n";
-    try {
-    $socket->close();
-    } catch (\Throwable $e) {
-        var_dump($e->getMessage());
-    }
     var_dump($remote->getMethods());
+    $socket->close();
     die();
     $remote->transform('fou', function ($transformed) use ($remote, &$captured, $socket) {
         $captured = $transformed;
