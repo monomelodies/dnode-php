@@ -38,6 +38,9 @@ class DNode extends EventEmitter
         return $connector
             ->connect($address)
             ->then(function (ConnectionInterface $connection) : Remote {
+                $connection->on('data', function ($data) : void {
+                    var_dump($data);
+                });
                 return new Remote($this->protocol, $connection);
             })
             ->otherwise(function ($reason) use ($address) : void {
@@ -60,9 +63,8 @@ class DNode extends EventEmitter
                 var_dump($req);
             });
             $connection->on('data', function ($data) use ($connection) {
-                $data = json_decode($data);
-                var_dump('data', $data);
-                $this->handle($data);
+                $request = json_decode($data);
+                $this->handle($request);
 //                $this->emit($data->event, $data->data);
             });
         });
@@ -156,9 +158,8 @@ class DNode extends EventEmitter
         foreach ($methods as $key => $value) {
             $this->remote->setMethod($key, $value);
         }
-        $this->emit('remote', [$this->remote]);
+        $this->remote->respond('remote', $this->remote);
         $this->ready = true;
-        $this->emit('ready');
     }
 }
 
