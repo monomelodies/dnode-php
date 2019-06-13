@@ -39,6 +39,11 @@ class Remote extends EventEmitter
 //        $this->emit('request', [$request]);
     }
 
+    public function respond(string $event, object $response) : void
+    {
+        $this->connection->write(json_encode(compact('event', 'response'))."\n");
+    }
+
     public function getMethods() : array
     {
         return $this->methods;
