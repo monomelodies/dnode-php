@@ -49,12 +49,6 @@ class DNode extends EventEmitter
                     trigger_error((string) $e, E_USER_ERROR);
                 }
             });
-        /*
-        $client = @stream_socket_client($address);
-        if (!$client) {
-            return;
-        }
-        */
     }
 
     public function listen(string $address, callable $callback = null) : Server
@@ -65,7 +59,8 @@ class DNode extends EventEmitter
                 var_dump($req);
             });
             $connection->on('data', function ($data) use ($connection) {
-                var_dump($data);
+                $data = json_decode($data);
+                $this->emit($data->event, $data->data);
             });
         });
         return $this->server;
