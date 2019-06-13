@@ -55,12 +55,15 @@ class DNode extends EventEmitter
     {
         $this->server = new Server($address, $this->loop);
         $this->server->on('connection', function (ConnectionInterface $connection) : void {
+            $this->remote = new Remote($this->protocol, $connection);
             $connection->on('request', function ($req) {
                 var_dump($req);
             });
             $connection->on('data', function ($data) use ($connection) {
                 $data = json_decode($data);
-                $this->emit($data->event, $data->data);
+                var_dump('data', $data);
+                $this->handle($data);
+//                $this->emit($data->event, $data->data);
             });
         });
         return $this->server;
@@ -88,6 +91,74 @@ class DNode extends EventEmitter
     public function close() : void
     {
         $this->server->close();
+    }
+
+    private function handle($req) : void
+    {
+        $session = $this;
+        // Register callbacks from request
+        $args = $this->unscrub($req);
+        if ($req->method === 'methods') {
+            // Got a methods list from the remote
+            $this->handleMethods($args[0]);
+            return;
+        }
+        if ($req->method === 'error') {
+            // Got an error from the remote
+            $this->emit('remoteError', [$args[0]]);
+            return;
+        }
+        if (is_string($req->method)) {
+            if (is_callable([$this, $req->method])) {
+                call_user_func_array([$this, $req->method], $args);
+                return;
+            }
+            $this->emit('error', ["Request for non-enumerable method: {$req->method}"]);
+            return;
+        }
+        if (is_numeric($req->method)) {
+            call_user_func_array($this->callbacks[$req->method], $args);
+        }
+    }
+
+    /**
+     * Replace callbacks. The supplied function should take a callback
+     * id and return a callback of its own.
+     */
+    private function unscrub(object $msg) : array
+    {
+        $args = $msg->arguments;
+        $session = $this;
+        foreach ($msg->callbacks as $id => $path) {
+            if (!isset($this->wrapped[$id])) {
+                $this->wrapped[$id] = function() use ($session, $id) {
+                    $session->request((int) $id, func_get_args());
+                };
+            }
+            $location =& $args;
+            foreach ($path as $part) {
+                if (is_array($location)) {
+                    $location =& $location[$part];
+                    continue;
+                }
+                $location =& $location->$part;
+            }
+            $location = $this->wrapped[$id];
+        }
+        return $args;
+    }
+
+    private function handleMethods($methods) : void
+    {
+        if (!is_object($methods)) {
+            $methods = new stdClass;
+        }
+        foreach ($methods as $key => $value) {
+            $this->remote->setMethod($key, $value);
+        }
+        $this->emit('remote', [$this->remote]);
+        $this->ready = true;
+        $this->emit('ready');
     }
 }
 
