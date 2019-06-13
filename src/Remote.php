@@ -4,8 +4,9 @@ namespace Monomelodies\DNode;
 
 use BadMethodCallException;
 use React\Socket\ConnectionInterface;
+use Evenement\EventEmitter;
 
-class Remote
+class Remote extends EventEmitter
 {
     /** @var object */
     private $wrapper;
@@ -34,7 +35,8 @@ class Remote
             'callbacks' => $scrub['callbacks'],
             'links' => $scrub['links']
         ];
-        $this->connection->write(json_encode(['event' => 'request', 'data' => [$request]]));
+        $this->connection->write(json_encode($request)."\n");
+//        $this->emit('request', [$request]);
     }
 
     public function getMethods() : array
@@ -93,7 +95,7 @@ class Remote
         return [
             'arguments' => $obj,
             'callbacks' => $paths,
-            'links' => $links
+            'links' => $links,
         ];
     }
 }
